@@ -1,0 +1,23 @@
+---
+- name: Copy and build Redis config
+  template:
+    src: redis.conf.j2
+    dest: /etc/redis/{{ item.port }}.conf
+  with_items: "{{ redis_cluster_instances }}"
+  notify: restart redis
+
+- name: Copy and parse redis systemd unit file
+  template:
+    src: redis-server.service.j2
+    dest: /etc/systemd/system/redis-server@.service
+    mode: 0644
+  with_items: "{{ redis_cluster_instances }}"
+  notify: restart redis
+
+- name: Ensure redis-server service is up
+  systemd:
+    name: "redis-server@{{ item.port }}"
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  with_items: "{{ redis_cluster_instances }}"

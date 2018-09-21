@@ -1,0 +1,10 @@
+#!/bin/bash
+
+wget http://download.redis.io/releases/redis-{{redis_cluster_version}}.tar.gz
+tar xvzf redis-{{redis_cluster_version}}.tar.gz
+cd redis-{{redis_cluster_version}}
+make distclean
+make
+make test
+make install
+echo -n | ./utils/install_server.sh

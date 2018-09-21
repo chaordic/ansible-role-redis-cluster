@@ -1,0 +1,39 @@
+---
+- debug:
+    msg: "{{ lookup('dig', item.name, 'qtype=A') }}"
+  register: dns_values
+  with_items: "{{ redis_cluster_masters }}"
+
+- set_fact:
+    redis_cluster_masters_ip: "{{ redis_cluster_masters_ip | default([]) + [item.msg] }}"
+  with_items: "{{ dns_values.results }}"
+  when: item.msg is defined
+
+- set_fact:
+    redis_cluster_masters_instances: ""
+
+- set_fact:
+    redis_cluster_masters_instances: "{{ redis_cluster_masters_instances + item.0 + ':' + item.1.port|string + ' ' }}"
+  with_together: 
+    - "{{ redis_cluster_masters_ip }}"
+    - "{{ redis_cluster_masters }}"
+
+- name: print redis cluster node list
+  debug:
+    msg: "{{ redis_cluster_masters_instances }}"
+
+- name: Create redis masters
+  shell: "printf 'yes' | redis-trib create {{ redis_cluster_masters_instances }}"
+  args:
+    creates: /etc/redis/redis-cluster-masters.created
+  run_once: True
+  register: redis_trib
+
+- name: Make creates file if redis masters are created 
+  file:
+    path: /etc/redis/redis-cluster-masters.created
+    state: touch
+    owner: redis
+    group: redis
+    mode: 0750
+  when: redis_trib is defined and "All 16384 slots covered." in redis_trib.stdout 

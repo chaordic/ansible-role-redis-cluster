@@ -1,0 +1,40 @@
+---
+# redis version
+redis_cluster_version: 4.0.11
+
+redis_cluster_masters:
+  - name: redis-01.localhost
+    port: 6378
+    slaves:
+      - name: redis-02.localhost
+        port: 6379
+  - name: redis-01.localhost
+    port: 6379
+    slaves:
+      - name: redis-02.localhost
+        port: 6378
+
+redis_cluster_instances:
+  - port: 6379
+    protected_mode: 'no'
+    maxmemory: 5000mb
+    timeout: 86400
+    loglevel: notice
+    persistence_save: ""
+    repl_diskless_sync: 'no'
+    repl_timeout: 60
+    repl_backlog_size: 1mb
+    repl_backlog_ttl: 3600
+    maxmemory_policy: volatile-lru
+    maxmemory_samples: 27
+    cluster_enabled: 'no'
+    cluster_node_timeout: 15000
+    cluster_slave_validity_factor: 10
+    cluster_migration_barrier: 1
+    cluster_require_full_coverage: 'no'
+    client_output_buffer_limit_slave_hard: 256mb
+    client_output_buffer_limit_slave_soft: 64mb
+    client_output_buffer_limit_slave_time: 60
+  - port: 6379
+    protected_mode: 'no'
+    cluster_enabled: 'no'

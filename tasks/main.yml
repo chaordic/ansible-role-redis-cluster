@@ -1,0 +1,21 @@
+---
+- include: install.yml
+  tags: redis-install
+
+- include: dependencies.yml
+  tags: redis-dependencies
+
+- include: files.yml
+  tags: redis-files
+
+- include: config.yml
+  tags: redis-config
+
+- include: masters.yml
+  tags: redis-masters
+
+- include: slaves-build.yml
+  with_items: "{{ redis_cluster_masters }}"
+  loop_control:
+    loop_var: item_master
+  tags: redis-slaves

@@ -1,0 +1,68 @@
+# {{ ansible_managed }}
+
+daemonize no
+
+pidfile /var/run/redis/redis_{{ item.port }}.pid
+port {{ item.port }}
+
+protected-mode {{ item.protected_mode | default('yes') }}
+
+timeout {{ item.timeout | default('86400') }}
+
+loglevel {{ item.loglevel | default('notice') }}
+
+logfile /var/log/redis/{{ item.port }}.log
+
+save {{ item.persistence_save | default('""') }}
+
+dbfilename dump_{{ item.port }}.rdb
+
+repl-diskless-sync {{ item.repl_diskless_sync | default('no') }}
+
+repl-timeout {{ item.repl_timeout | default('60') }}
+
+repl-backlog-size {{ item.repl_backlog_size | default('1mb') }}
+
+repl-backlog-ttl {{ item.repl_backlog_ttl | default('3600') }}
+
+maxmemory {{ item.maxmemory }}
+
+maxmemory-policy {{ item.maxmemory_policy | default('volatile-lru') }}
+
+maxmemory-samples {{ item.maxmemory_samples | default('27') }}
+
+appendonly no
+
+appendfilename "appendonly.aof"
+
+appendfsync everysec
+
+no-appendfsync-on-rewrite no
+
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+
+aof-load-truncated yes
+
+cluster-enabled {{ item.cluster_enabled | default('no') }}
+
+{% if item.cluster_enabled is defined and item.cluster_enabled == 'yes' %}
+
+cluster-config-file /etc/redis/nodes-{{ item.port | default('6379') }}.conf
+
+cluster-node-timeout {{ item.cluster_node_timeout | default('15000') }}
+
+cluster-slave-validity-factor {{ item.cluster_slave_validity_factor | default('10') }}
+
+cluster-migration-barrier {{ item.cluster_migration_barrier | default('1') }}
+
+cluster-require-full-coverage {{ item.cluster_require_full_coverage | default('no') }}
+
+{% endif %}
+client-output-buffer-limit normal 0 0 0
+client-output-buffer-limit slave {{ item.client_output_buffer_limit_slave_hard | default('256mb') }} {{ item.client_output_buffer_limit_slave_soft | default('64mb') }} {{ item.client_output_buffer_limit_slave_time | default('60') }}
+client-output-buffer-limit pubsub 32mb 8mb 60
+
+hz 10
+
+aof-rewrite-incremental-fsync yes

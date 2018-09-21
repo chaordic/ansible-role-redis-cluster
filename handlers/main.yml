@@ -1,0 +1,14 @@
+---
+- name: restart redis
+  service:
+    name: "redis-server@{{ item.port }}"
+    state: restarted
+  with_items: "{{ redis_cluster_instances }}"
+
+
+- name: restart redis
+  systemd:
+    state: restarted
+    daemon_reload: no
+    name: "redis-server@{{ item.port }}"
+  with_items: "{{ redis_cluster_instances }}"

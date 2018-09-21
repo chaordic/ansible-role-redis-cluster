@@ -1,0 +1,49 @@
+---
+- name: Create log directory
+  file:
+    path: /var/log/redis
+    state: directory
+    owner: redis
+    group: redis
+    mode: 0755
+
+- name: Check if redis log files exists
+  stat: 
+    path: "/var/log/redis/{{ item.port }}.log"
+  with_items: "{{ redis_cluster_instances }}"
+  register: check_logs
+
+- name: Create log files
+  file:
+    path: "{{ item.invocation.module_args.path }}"
+    state: touch
+    owner: redis
+    group: redis
+    mode: 0755
+  when: not item.stat.exists
+  with_items: "{{ check_logs.results }}"
+
+- name: Ensure log files permissions
+  file:
+    path: "/var/log/redis/{{ item.port }}.log"
+    state: file
+    owner: redis
+    group: redis
+    mode: 0755
+  with_items: "{{ redis_cluster_instances }}"
+
+- name: Ensure /var/run/redis directory exists
+  file:
+    path: /var/run/redis
+    state: directory
+    owner: redis
+    group: redis
+    mode: 0755
+
+- name: Ensure /etc/redis directory and it's permissions exists
+  file:
+    path: /etc/redis
+    state: directory
+    owner: redis
+    group: redis
+    mode: 0755

@@ -1,0 +1,5 @@
+---
+- include: slave.yml
+  with_items: "{{ item_master.slaves }}"
+  loop_control:
+    loop_var: item_slave

@@ -1,0 +1,52 @@
+---
+- debug:
+    msg: "{{ lookup('dig', item_master.name, 'qtype=A') }}"
+  register: dns_master_ip
+
+- set_fact:
+    master_ip: "{{ dns_master_ip.msg }}"
+    master_port: "{{ item_master.port }}"
+
+- shell: redis-cli -h {{ master_ip }} -p {{ master_port }} CLUSTER NODES | grep myself | cut -d " " -f 1
+  register: redis_nodes
+  changed_when: false
+  run_once: True
+
+- set_fact:
+    master_id: "{{ redis_nodes.stdout }}"
+  when: redis_nodes.stdout != ""
+
+- debug:
+    var: redis_nodes
+
+- debug:
+    msg: "{{ lookup('dig', item_slave.name, 'qtype=A') }}"
+  register: dns_master_ip
+
+- set_fact:
+    slave_ip: "{{ dns_master_ip.msg }}"
+    slave_port: "{{ master_port }}"
+
+- name: Show command do add-node
+  debug:
+    msg: "redis-trib add-node --slave --master-id {{ master_id }} {{ slave_ip }}:{{ slave_port }} {{ master_ip }}:{{ master_port }}"
+  register: slave_command
+
+- debug: var=slave_command
+
+
+- name: Create redis slaves
+  shell: "printf 'yes' | redis-trib add-node --slave --master-id {{ master_id }} {{ slave_ip }}:{{ slave_port }} {{ master_ip }}:{{ master_port }}"
+  args:
+    creates: /etc/redis/redis-cluster-slaves.created
+  run_once: True
+  register: redis_trib
+
+- name: Make creates file if redis slaves are created 
+  file:
+    path: /etc/redis/redis-cluster-slaves.created
+    state: touch
+    owner: redis
+    group: redis
+    mode: 0750
+  when: redis_trib is defined and "[OK] New node added correctly." in redis_trib.stdout 
