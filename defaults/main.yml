@@ -4,11 +4,6 @@ redis_cluster_version: 4.0.11
 
 redis_cluster_masters:
   - name: redis-01.localhost
-    port: 6378
-    slaves:
-      - name: redis-02.localhost
-        port: 6379
-  - name: redis-01.localhost
     port: 6379
     slaves:
       - name: redis-02.localhost
@@ -35,6 +30,3 @@ redis_cluster_instances:
     client_output_buffer_limit_slave_hard: 256mb
     client_output_buffer_limit_slave_soft: 64mb
     client_output_buffer_limit_slave_time: 60
-  - port: 6379
-    protected_mode: 'no'
-    cluster_enabled: 'no'
