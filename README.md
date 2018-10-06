@@ -6,7 +6,9 @@ Debian-based distributions, requires ```systemd``` and ```dnspython```.
 
 ## Role Variables
 
+```yaml
 redis_cluster_version: 4.0.11
+```
 
 Redis installation.he redis version to use for build from source.
 
