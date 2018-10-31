@@ -1,5 +1,7 @@
 # Ansible Role: redis-cluster
 
+Ansible role to install and configure Redis Cluster and its topology.
+
 ## Requirements
 
 Debian-based distributions, requires ```systemd``` and ```dnspython```.
@@ -8,7 +10,7 @@ Debian-based distributions, requires ```systemd``` and ```dnspython```.
 
 redis_cluster_version: 4.0.11
 
-Redis installation.he redis version to use for build from source.
+Redis version to use for build from source.
 
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 
