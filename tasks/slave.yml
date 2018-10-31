@@ -1,31 +1,38 @@
 ---
-- debug:
+- name: "DNS lookup of master node: {{ item_master.name }}"
+  debug:
     msg: "{{ lookup('dig', item_master.name, 'qtype=A') }}"
   register: dns_master_ip
 
-- set_fact:
+- name: Print master ip and port
+  set_fact:
     master_ip: "{{ dns_master_ip.msg }}"
     master_port: "{{ item_master.port }}"
 
-- shell: redis-cli -h {{ master_ip }} -p {{ master_port }} CLUSTER NODES | grep myself | cut -d " " -f 1
+- name: "Discover master id of {{ item_master.name }}"
+  shell: redis-cli -h {{ master_ip }} -p {{ master_port }} CLUSTER NODES | grep myself | cut -d " " -f 1
   register: redis_nodes
   changed_when: false
   run_once: True
 
-- set_fact:
+- name: "Set master id of {{ item_master.name }}"
+  set_fact:
     master_id: "{{ redis_nodes.stdout }}"
   when: redis_nodes.stdout != ""
 
-- debug:
-    var: redis_nodes
+- name: "Print master id of {{ item_master.name }}"
+  debug:
+    var: master_id
 
-- debug:
+- name: "DNS lookup of slave node: {{ item_slave.name }}"
+  debug:
     msg: "{{ lookup('dig', item_slave.name, 'qtype=A') }}"
-  register: dns_master_ip
+  register: dns_slave_ip
 
-- set_fact:
-    slave_ip: "{{ dns_master_ip.msg }}"
-    slave_port: "{{ master_port }}"
+- name: Set slave ip and port
+  set_fact:
+    slave_ip: "{{ dns_slave_ip.msg }}"
+    slave_port: "{{ item_slave.port }}"
 
 - name: Show command do add-node
   debug:
@@ -34,17 +41,16 @@
 
 - debug: var=slave_command
 
-
 - name: Create redis slaves
   shell: "printf 'yes' | redis-trib add-node --slave --master-id {{ master_id }} {{ slave_ip }}:{{ slave_port }} {{ master_ip }}:{{ master_port }}"
   args:
-    creates: /etc/redis/redis-cluster-slaves.created
+    creates: /etc/redis/redis-cluster-slave-{{ slave_port }}.created
   run_once: True
   register: redis_trib
 
-- name: Make creates file if redis slaves are created 
+- name: Make created file if redis slaves are created
   file:
-    path: /etc/redis/redis-cluster-slaves.created
+    path: /etc/redis/redis-cluster-slave-{{ slave_port }}.created
     state: touch
     owner: redis
     group: redis
