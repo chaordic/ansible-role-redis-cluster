@@ -47,3 +47,11 @@
     owner: redis
     group: redis
     mode: 0755
+
+- name: Ensure /var/lib/redis directory and it's permissions exists
+  file:
+    path: /var/lib/redis
+    state: directory
+    owner: redis
+    group: redis
+    mode: 0755
