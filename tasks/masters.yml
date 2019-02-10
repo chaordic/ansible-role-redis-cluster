@@ -3,6 +3,7 @@
   debug:
     msg: "{{ lookup('dig', item.name, 'qtype=A') }}"
   register: dns_values
+  run_once: True
   with_items: "{{ redis_cluster_masters }}"
 
 - name: Set redis_cluster_masters_ip

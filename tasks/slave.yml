@@ -2,9 +2,10 @@
 - name: "DNS lookup of master node: {{ item_master.name }}"
   debug:
     msg: "{{ lookup('dig', item_master.name, 'qtype=A') }}"
+  run_once: True
   register: dns_master_ip
 
-- name: Print master ip and port
+- name: Set master_ip and master_port
   set_fact:
     master_ip: "{{ dns_master_ip.msg }}"
     master_port: "{{ item_master.port }}"
@@ -29,12 +30,12 @@
     msg: "{{ lookup('dig', item_slave.name, 'qtype=A') }}"
   register: dns_slave_ip
 
-- name: Set slave ip and port
+- name: Set slave_ip and slave_port
   set_fact:
     slave_ip: "{{ dns_slave_ip.msg }}"
     slave_port: "{{ item_slave.port }}"
 
-- name: Show command do add-node
+- name: Show add-node command
   debug:
     msg: "redis-trib add-node --slave --master-id {{ master_id }} {{ slave_ip }}:{{ slave_port }} {{ master_ip }}:{{ master_port }}"
   register: slave_command
@@ -44,13 +45,13 @@
 - name: Create redis slaves
   shell: "printf 'yes' | redis-trib add-node --slave --master-id {{ master_id }} {{ slave_ip }}:{{ slave_port }} {{ master_ip }}:{{ master_port }}"
   args:
-    creates: /etc/redis/redis-cluster-slave-{{ slave_port }}.created
+    creates: /etc/redis/redis-cluster-slave-{{ slave_ip | replace('.','-') }}-{{ slave_port }}.created
   run_once: True
   register: redis_trib
 
 - name: Make created file if redis slaves are created
   file:
-    path: /etc/redis/redis-cluster-slave-{{ slave_port }}.created
+    path: /etc/redis/redis-cluster-slave-{{ slave_ip | replace('.','-') }}-{{ slave_port }}.created
     state: touch
     owner: redis
     group: redis
