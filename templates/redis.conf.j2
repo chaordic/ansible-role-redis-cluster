@@ -5,6 +5,10 @@ daemonize no
 pidfile /var/run/redis/redis_{{ item.port }}.pid
 port {{ item.port }}
 
+tcp-backlog {{ item.tcp_backlog | default('511') }}
+
+tcp-keepalive {{ item.tcp_keepalive | default('300') }}
+
 protected-mode {{ item.protected_mode | default('yes') }}
 
 timeout {{ item.timeout | default('86400') }}
@@ -19,11 +23,17 @@ dbfilename dump_{{ item.port }}.rdb
 
 repl-diskless-sync {{ item.repl_diskless_sync | default('no') }}
 
+repl-diskless-delay {{ item.repl_diskless_delay | default('5') }}
+
 repl-timeout {{ item.repl_timeout | default('60') }}
+
+repl-disable-tcp-nodelay {{ item.repl_disable_tcp_nodelay | default('no') }}
 
 repl-backlog-size {{ item.repl_backlog_size | default('1mb') }}
 
 repl-backlog-ttl {{ item.repl_backlog_ttl | default('3600') }}
+
+slave-priority {{ item.slave_priority | default('100') }}
 
 maxmemory {{ item.maxmemory }}
 
@@ -68,3 +78,23 @@ hz 10
 aof-rewrite-incremental-fsync yes
 
 dir /var/lib/redis
+
+########################### ACTIVE DEFRAGMENTATION #######################
+
+# Enabled active defragmentation
+activedefrag {{ item.activedefrag | default('no') }}
+
+# Minimum amount of fragmentation waste to start active defrag
+active-defrag-ignore-bytes {{ item.active_defrag_ignore_bytes | default('100mb') }}
+
+# Minimum percentage of fragmentation to start active defrag
+active-defrag-threshold-lower {{ item.active_defrag_threshold_lower | default('10') }}
+
+# Maximum percentage of fragmentation at which we use maximum effort
+active-defrag-threshold-upper {{ item.active_defrag_threshold_upper | default('100') }}
+
+# Minimal effort for defrag in CPU percentage
+active-defrag-cycle-min {{ item.active_defrag_cycle_min | default('5') }}
+
+# Maximal effort for defrag in CPU percentage
+active-defrag-cycle-max {{ item.active_defrag_cycle_min | default('75') }}
