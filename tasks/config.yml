@@ -21,3 +21,10 @@
     state: started
     daemon_reload: yes
   with_items: "{{ redis_cluster_instances }}"
+
+- name: Ensure default redis service is down
+  systemd:
+    name: redis_6379
+    enabled: no
+    state: stopped
+    daemon_reload: yes
