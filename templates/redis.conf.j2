@@ -23,7 +23,7 @@ dbfilename dump_{{ item.port }}.rdb
 
 repl-diskless-sync {{ item.repl_diskless_sync | default('no') }}
 
-repl-diskless-delay {{ item.repl_diskless_delay | default('5') }}
+repl-diskless-sync-delay {{ item.repl_diskless_delay | default('5') }}
 
 repl-timeout {{ item.repl_timeout | default('60') }}
 
