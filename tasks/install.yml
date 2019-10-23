@@ -13,6 +13,8 @@
     with_items:
       - tcl
       - wget
+      - make
+      - build-essential
 
   - name: Copy redis build script
     template:
