@@ -26,4 +26,3 @@
   - name: "Build redis {{ redis_cluster_version }} from the source"
     script: /tmp/redis_build.sh
   when: not is_installed.stat.exists
-
