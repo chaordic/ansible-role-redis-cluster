@@ -7,14 +7,22 @@
 
 - block:
   - name: Install required packages to build
-    apt:
+    package:
       name: "{{ item }}"
       state: present
-    with_items:
+    loop:
       - tcl
-      - wget
       - make
       - build-essential
+    when:
+      - ansible_os_family == "Debian"
+
+  - name: Install required packages to build
+    package:
+      name: ['tcl', '@Development Tools']
+      state: present
+    when:
+      - ansible_os_family == "RedHat"
 
   - name: Copy redis build script
     template:

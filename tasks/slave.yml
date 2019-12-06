@@ -1,13 +1,7 @@
 ---
-- name: "DNS lookup of master node: {{ item_master.name }}"
-  debug:
-    msg: "{{ lookup('dig', item_master.name, 'qtype=A') }}"
-  run_once: True
-  register: dns_master_ip
-
 - name: Set master_ip and master_port
   set_fact:
-    master_ip: "{{ dns_master_ip.msg }}"
+    master_ip: "{{ item_master.name }}"
     master_port: "{{ item_master.port }}"
 
 - name: "Discover master id of {{ item_master.name }}"
@@ -25,25 +19,20 @@
   debug:
     var: master_id
 
-- name: "DNS lookup of slave node: {{ item_slave.name }}"
-  debug:
-    msg: "{{ lookup('dig', item_slave.name, 'qtype=A') }}"
-  register: dns_slave_ip
-
 - name: Set slave_ip and slave_port
   set_fact:
-    slave_ip: "{{ dns_slave_ip.msg }}"
+    slave_ip: "{{ item_slave.name }}"
     slave_port: "{{ item_slave.port }}"
 
 - name: Show add-node command
   debug:
-    msg: "redis-trib add-node --slave --master-id {{ master_id }} {{ slave_ip }}:{{ slave_port }} {{ master_ip }}:{{ master_port }}"
+    msg: "redis-cli add-node --cluster-slave {{ slave_ip }}:{{ slave_port }} {{ master_ip }}:{{ master_port }} --cluster-master-id {{ master_id }}"
   register: slave_command
 
 - debug: var=slave_command
 
 - name: Create redis slaves
-  shell: "printf 'yes' | redis-trib add-node --slave --master-id {{ master_id }} {{ slave_ip }}:{{ slave_port }} {{ master_ip }}:{{ master_port }}"
+  shell: "printf 'yes' | redis-cli add-node --cluster-slave {{ slave_ip }}:{{ slave_port }} {{ master_ip }}:{{ master_port }} --cluster-master-id {{ master_id }}"
   args:
     creates: /etc/redis/redis-cluster-slave-{{ slave_ip | replace('.','-') }}-{{ slave_port }}.created
   run_once: True

@@ -1,6 +1,6 @@
 ---
 # redis version
-redis_cluster_version: 4.0.11
+redis_cluster_version: 5.0.7
 
 redis_cluster_masters:
   - name: redis-01.localhost

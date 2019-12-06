@@ -16,18 +16,19 @@
     system: yes
     createhome: no
 
-- name: Install ruby
-  package:
-    name: ruby
-    state: present
+# redis-trib for redis version 3 / 4, not required for redis 5
+# - name: Install ruby
+#   package:
+#     name: ruby
+#     state: present
 
-- gem:
-    name: redis
-    version: 4.0.2
-    state: present
+# - gem:
+#     name: redis
+#     version: 4.0.2
+#     state: present
 
-- name: Install redis-trib from local file.
-  copy:
-    src: redis-trib.rb
-    dest: /usr/local/bin/redis-trib
-    mode: 0750
+# - name: Install redis-trib from local file.
+#   copy:
+#     src: redis-trib.rb
+#     dest: /usr/local/bin/redis-trib
+#     mode: 0750

@@ -1,16 +1,9 @@
 ---
-- name: DNS lookup of master nodes
-  debug:
-    msg: "{{ lookup('dig', item.name, 'qtype=A') }}"
-  register: dns_values
-  run_once: True
-  with_items: "{{ redis_cluster_masters }}"
-
 - name: Set redis_cluster_masters_ip
   set_fact:
-    redis_cluster_masters_ip: "{{ redis_cluster_masters_ip | default([]) + [item.msg] }}"
-  with_items: "{{ dns_values.results }}"
-  when: item.msg is defined
+    redis_cluster_masters_ip: "{{ redis_cluster_masters_ip | default([]) + [item.name] }}"
+  with_items: "{{ redis_cluster_masters }}"
+  # when: item.msg is defined
 
 - name: Set redis_cluster_masters_instances
   set_fact:
@@ -28,7 +21,7 @@
     msg: "{{ redis_cluster_masters_instances }}"
 
 - name: Create redis masters
-  shell: "printf 'yes' | redis-trib create {{ redis_cluster_masters_instances }}"
+  shell: "printf 'yes' | redis-cli --cluster create {{ redis_cluster_masters_instances }}"
   args:
     creates: /etc/redis/redis-cluster-masters.created
   run_once: True

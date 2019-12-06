@@ -14,6 +14,14 @@
   with_items: "{{ redis_cluster_instances }}"
   notify: restart redis
 
+- name: Get pid of default redis on localhost 6379
+  shell: netstat -nltp | grep 127.0.0.1:6379 | awk '{print $7}' | cut -d '/' -f1
+  register: default_redis_pid_on_localhost6379
+
+- name: Kill default redis on localhost 6379
+  shell: kill -9 {{ default_redis_pid_on_localhost6379.stdout }}
+  when: default_redis_pid_on_localhost6379.stdout != ''
+
 - name: Ensure redis-server service is up
   systemd:
     name: "redis-server@{{ item.port }}"
@@ -22,9 +30,10 @@
     daemon_reload: yes
   with_items: "{{ redis_cluster_instances }}"
 
-- name: Ensure default redis service is down
-  systemd:
-    name: redis_6379
-    enabled: no
-    state: stopped
-    daemon_reload: yes
+# # This can not effectively shutdown 127.0.0.1:6379 redis (default redis service?)
+# - name: Ensure default redis service is down
+#   systemd:
+#     name: redis_6379
+#     enabled: no
+#     state: stopped
+#     daemon_reload: yes
