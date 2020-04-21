@@ -22,6 +22,7 @@
       dest:  /tmp/redis_build.sh
       mode: 0744
     delegate_to: localhost
+    become: no
 
   - name: "Build redis {{ redis_cluster_version }} from the source"
     script: /tmp/redis_build.sh
