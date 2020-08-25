@@ -1,9 +1,9 @@
 ---
-- include: install.yml
-  tags: redis-install
-
 - include: dependencies.yml
   tags: redis-dependencies
+  
+- include: install.yml
+  tags: redis-install
 
 - include: files.yml
   tags: redis-files
