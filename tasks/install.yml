@@ -8,13 +8,8 @@
 - block:
   - name: Install required packages to build
     apt:
-      name: "{{ item }}"
+      name: "{{ redis_cluster_default_packages }}"
       state: present
-    with_items:
-      - tcl
-      - wget
-      - make
-      - build-essential
 
   - name: Copy redis build script
     template:
