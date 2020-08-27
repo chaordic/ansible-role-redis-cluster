@@ -30,3 +30,9 @@ redis_cluster_instances:
     client_output_buffer_limit_slave_hard: 256mb
     client_output_buffer_limit_slave_soft: 64mb
     client_output_buffer_limit_slave_time: 60
+
+redis_cluster_default_packages:
+  - tcl
+  - wget
+  - make
+  - build-essential
